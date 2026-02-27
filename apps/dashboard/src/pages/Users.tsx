@@ -13,7 +13,7 @@ export default function Users() {
   const qc = useQueryClient();
   const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', role: 'editor' as User['role'], password: '' });
+  const [form, setForm] = useState({ name: '', email: '', role: 'editor', password: '' });
 
   const { data, isLoading } = useQuery({
     queryKey: ['users', { page, pageSize: 20 }],
@@ -65,18 +65,18 @@ export default function Users() {
       render: (u) => <StatusBadge status={u.role} />,
     },
     {
-      key: 'lastLogin',
+      key: 'lastLoginAt',
       label: 'Last Login',
       render: (u) => (
         <span className="text-zinc-500">
-          {u.lastLogin ? format(new Date(u.lastLogin), 'MMM d, HH:mm') : 'Never'}
+          {u.lastLoginAt ? format(new Date(u.lastLoginAt), 'MMM d, HH:mm') : 'Never'}
         </span>
       ),
     },
     {
-      key: 'status',
+      key: 'isActive',
       label: 'Status',
-      render: (u) => <StatusBadge status={u.status} />,
+      render: (u) => <StatusBadge status={u.isActive ? 'active' : 'inactive'} />,
     },
     {
       key: 'actions',
@@ -88,16 +88,16 @@ export default function Users() {
             e.stopPropagation();
             toggleStatus.mutate({
               id: u.id,
-              status: u.status === 'active' ? 'inactive' : 'active',
+              status: u.isActive ? 'inactive' : 'active',
             });
           }}
           className={`rounded-lg px-3 py-1 text-xs font-medium ${
-            u.status === 'active'
+            u.isActive
               ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
               : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
           }`}
         >
-          {u.status === 'active' ? 'Deactivate' : 'Activate'}
+          {u.isActive ? 'Deactivate' : 'Activate'}
         </button>
       ),
     },
@@ -150,7 +150,7 @@ export default function Users() {
             <label className="mb-1.5 block text-sm font-medium text-zinc-300">Role</label>
             <select
               value={form.role}
-              onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as User['role'] }))}
+              onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
               className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3.5 py-2.5 text-sm text-zinc-100 outline-none focus:border-violet-500"
             >
               <option value="admin">Admin</option>

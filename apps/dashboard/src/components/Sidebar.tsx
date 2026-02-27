@@ -79,7 +79,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       <nav className="flex-1 overflow-y-auto px-2 py-3">
         <ul className="space-y-0.5">
           {navItems.map((item) => {
-            if (item.adminOnly && user?.role !== 'admin') return null;
+            if (item.adminOnly && !['admin', 'super_admin'].includes(user?.role ?? '')) return null;
             const Icon = item.icon;
             return (
               <li key={item.to}>

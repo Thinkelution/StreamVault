@@ -17,9 +17,9 @@ export default function FeedBuilder() {
     name: '',
     type: 'mrss' as 'mrss' | 'json' | 'atom',
     description: '',
-    sortOrder: 'newest' as 'newest' | 'oldest' | 'popular',
+    sortOrder: 'newest',
     itemLimit: 50,
-    status: 'active' as 'active' | 'inactive',
+    isActive: true,
   });
   const [showPreview, setShowPreview] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -30,9 +30,9 @@ export default function FeedBuilder() {
         name: existing.name,
         type: existing.type,
         description: existing.description ?? '',
-        sortOrder: existing.sortOrder,
-        itemLimit: existing.itemLimit,
-        status: existing.status,
+        sortOrder: existing.sortOrder ?? 'newest',
+        itemLimit: existing.itemLimit ?? 50,
+        isActive: existing.isActive ?? true,
       });
       setInitialized(true);
     }

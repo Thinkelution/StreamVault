@@ -35,18 +35,18 @@ export default function Feeds() {
     {
       key: 'itemCount',
       label: 'Items',
-      render: (f) => <span className="text-zinc-400">{f.itemCount}</span>,
+      render: (f) => <span className="text-zinc-400">{f._count?.items ?? 0}</span>,
     },
     {
-      key: 'status',
+      key: 'isActive',
       label: 'Status',
-      render: (f) => <StatusBadge status={f.status} />,
+      render: (f) => <StatusBadge status={f.isActive ? 'active' : 'inactive'} />,
     },
     {
-      key: 'lastUpdated',
+      key: 'updatedAt',
       label: 'Last Updated',
       render: (f) => (
-        <span className="text-zinc-500">{format(new Date(f.lastUpdated), 'MMM d, HH:mm')}</span>
+        <span className="text-zinc-500">{f.updatedAt ? format(new Date(f.updatedAt), 'MMM d, HH:mm') : '—'}</span>
       ),
     },
     {

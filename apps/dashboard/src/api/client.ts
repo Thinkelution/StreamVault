@@ -150,11 +150,12 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'editor' | 'viewer';
+  role: string;
   avatar?: string;
-  lastLogin?: string;
-  status: 'active' | 'inactive';
+  lastLoginAt?: string | null;
+  isActive: boolean;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface Video {
@@ -193,21 +194,22 @@ export interface TranscodingJob {
 export interface Feed {
   id: string;
   name: string;
+  slug: string;
   type: 'mrss' | 'json' | 'atom';
   description?: string;
-  itemCount: number;
-  status: 'active' | 'inactive';
-  sortOrder: 'newest' | 'oldest' | 'popular';
+  isActive: boolean;
+  sortOrder: string;
   itemLimit: number;
-  filters?: {
-    categoryIds?: string[];
-    tagIds?: string[];
-    status?: string;
-  };
-  videoIds?: string[];
-  url?: string;
-  lastUpdated: string;
+  cacheTtl: number;
+  language: string;
+  filterRules?: any;
+  customNamespaces?: any;
+  imageUrl?: string;
+  copyright?: string;
+  apiKey?: string;
+  _count?: { items: number };
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface Category {
