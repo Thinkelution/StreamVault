@@ -1,0 +1,21 @@
+FROM node:20-alpine AS builder
+RUN apk add --no-cache python3 make g++
+WORKDIR /app
+COPY package.json package-lock.json turbo.json ./
+COPY apps/api/package.json apps/api/
+COPY packages/shared/package.json packages/shared/
+RUN npm ci --workspace=@streamvault/api --workspace=@streamvault/shared
+COPY apps/api/ apps/api/
+COPY packages/shared/ packages/shared/
+RUN cd apps/api && npx prisma generate && npm run build
+
+FROM node:20-alpine
+RUN apk add --no-cache ffmpeg
+WORKDIR /app
+COPY --from=builder /app/apps/api/dist ./dist
+COPY --from=builder /app/apps/api/prisma ./prisma
+COPY --from=builder /app/apps/api/node_modules ./node_modules
+COPY --from=builder /app/apps/api/package.json ./
+RUN mkdir -p /data/uploads /data/transcoded /data/thumbnails /data/hls
+EXPOSE 3200
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
