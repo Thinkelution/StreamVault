@@ -30,8 +30,8 @@ export default api;
 // ── Auth ──
 export const authApi = {
   login: (email: string, password: string) =>
-    api.post<{ token: string; user: User }>('/auth/login', { email, password }),
-  me: () => api.get<User>('/auth/me'),
+    api.post<{ success: boolean; data: { accessToken: string; refreshToken: string; user: User } }>('/auth/login', { email, password }),
+  me: () => api.get<{ success: boolean; data: User }>('/auth/me'),
 };
 
 // ── Videos ──
