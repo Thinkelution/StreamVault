@@ -17,7 +17,7 @@ export default function Feeds() {
   const { data, isLoading } = useFeeds({ page, pageSize: 20 });
   const deleteFeed = useDeleteFeed();
 
-  const feeds = data?.data ?? [];
+  const feeds = data?.items ?? [];
   const totalPages = data?.totalPages ?? 1;
 
   const columns: Column<Feed>[] = [

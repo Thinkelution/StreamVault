@@ -26,7 +26,7 @@ export default function AuditLog() {
         .then((r) => r.data),
   });
 
-  const entries = data?.data ?? [];
+  const entries = data?.items ?? [];
 
   const actionColors: Record<string, string> = {
     create: 'text-emerald-400',

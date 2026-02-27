@@ -44,7 +44,7 @@ export default function Playlists() {
     },
   });
 
-  const playlists = data?.data ?? [];
+  const playlists = data?.items ?? [];
 
   const columns: Column<Playlist>[] = [
     {

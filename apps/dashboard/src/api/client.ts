@@ -14,7 +14,12 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    if (res.data && typeof res.data === 'object' && 'success' in res.data) {
+      res.data = res.data.data;
+    }
+    return res;
+  },
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('sv_token');
@@ -30,8 +35,8 @@ export default api;
 // ── Auth ──
 export const authApi = {
   login: (email: string, password: string) =>
-    api.post<{ success: boolean; data: { accessToken: string; refreshToken: string; user: User } }>('/auth/login', { email, password }),
-  me: () => api.get<{ success: boolean; data: User }>('/auth/me'),
+    api.post<{ accessToken: string; refreshToken: string; user: User }>('/auth/login', { email, password }),
+  me: () => api.get<User>('/auth/me'),
 };
 
 // ── Videos ──
@@ -134,10 +139,10 @@ export const auditApi = {
 
 // ── Types ──
 export interface PaginatedResponse<T> {
-  data: T[];
+  items: T[];
   total: number;
   page: number;
-  pageSize: number;
+  limit: number;
   totalPages: number;
 }
 

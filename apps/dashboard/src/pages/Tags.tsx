@@ -13,10 +13,11 @@ export default function Tags() {
   const [editName, setEditName] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<Tag | null>(null);
 
-  const { data: tags = [], isLoading } = useQuery({
+  const { data: tagsData, isLoading } = useQuery({
     queryKey: ['tags'],
     queryFn: () => tagsApi.list().then((r) => r.data),
   });
+  const tags: Tag[] = Array.isArray(tagsData) ? tagsData : (tagsData as any)?.items ?? [];
 
   const createTag = useMutation({
     mutationFn: (name: string) => tagsApi.create({ name }),

@@ -81,7 +81,7 @@ export default function Dashboard() {
       ]
     : metrics;
 
-  const activity = auditData?.data ?? [];
+  const activity = auditData?.items ?? [];
 
   return (
     <div className="space-y-6">

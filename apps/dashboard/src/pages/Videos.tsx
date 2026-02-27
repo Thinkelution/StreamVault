@@ -32,7 +32,7 @@ export default function Videos() {
   });
   const bulkAction = useBulkVideoAction();
 
-  const videos = data?.data ?? [];
+  const videos = data?.items ?? [];
   const totalPages = data?.totalPages ?? 1;
 
   const columns: Column<Video>[] = [

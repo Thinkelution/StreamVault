@@ -73,10 +73,11 @@ export default function Categories() {
   const [newName, setNewName] = useState('');
   const [editName, setEditName] = useState('');
 
-  const { data: categories = [], isLoading } = useQuery({
+  const { data: catData, isLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: () => categoriesApi.list().then((r) => r.data),
   });
+  const categories: Category[] = Array.isArray(catData) ? catData : (catData as any)?.items ?? [];
 
   const createCategory = useMutation({
     mutationFn: (data: Partial<Category>) => categoriesApi.create(data),

@@ -40,7 +40,7 @@ export default function Users() {
     },
   });
 
-  const users = data?.data ?? [];
+  const users = data?.items ?? [];
 
   const columns: Column<User>[] = [
     {
