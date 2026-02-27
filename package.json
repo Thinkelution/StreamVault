@@ -1,0 +1,26 @@
+{
+  "name": "streamvault",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Open-source Video Content Management System with MRSS feed support",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "start": "turbo run start",
+    "db:migrate": "cd apps/api && npx prisma migrate deploy",
+    "db:seed": "cd apps/api && npx prisma db seed",
+    "db:generate": "cd apps/api && npx prisma generate"
+  },
+  "devDependencies": {
+    "turbo": "^2"
+  },
+  "packageManager": "npm@11.6.2",
+  "engines": {
+    "node": ">=20"
+  }
+}

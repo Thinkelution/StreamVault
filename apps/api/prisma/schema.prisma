@@ -1,0 +1,308 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  name          String
+  avatar        String?
+  role          String   @default("viewer")
+  twoFactorSecret String? @map("two_factor_secret")
+  isActive      Boolean  @default(true) @map("is_active")
+  lastLoginAt   DateTime? @map("last_login_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  videos        Video[]
+  apiKeys       ApiKey[]
+  auditLogs     AuditLog[]
+  playlists     Playlist[]
+
+  @@map("users")
+}
+
+model ApiKey {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  name        String
+  keyHash     String   @unique @map("key_hash")
+  permissions Json     @default("[]")
+  expiresAt   DateTime? @map("expires_at")
+  lastUsedAt  DateTime? @map("last_used_at")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+model Video {
+  id               String   @id @default(uuid())
+  title            String
+  slug             String   @unique
+  description      String?  @db.Text
+  shortDescription String?  @map("short_description")
+  seoTitle         String?  @map("seo_title")
+  seoDescription   String?  @map("seo_description") @db.Text
+  status           String   @default("draft")
+  duration         Float?
+  resolution       String?
+  fileSize         BigInt?  @map("file_size")
+  sourceUrl        String?  @map("source_url")
+  hlsUrl           String?  @map("hls_url")
+  dashUrl          String?  @map("dash_url")
+  thumbnailUrl     String?  @map("thumbnail_url")
+  spriteSheetUrl   String?  @map("sprite_sheet_url")
+  customFields     Json?    @map("custom_fields")
+  publishedAt      DateTime? @map("published_at")
+  scheduledAt      DateTime? @map("scheduled_at")
+  expiresAt        DateTime? @map("expires_at")
+  createdById      String   @map("created_by_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  createdBy        User     @relation(fields: [createdById], references: [id])
+  renditions       Rendition[]
+  captions         Caption[]
+  feedItems        FeedItem[]
+  transcodingJobs  TranscodingJob[]
+  playlistItems    PlaylistItem[]
+  videoCategories  VideoCategory[]
+  videoTags        VideoTag[]
+  analytics        VideoAnalytics[]
+
+  @@map("videos")
+}
+
+model Rendition {
+  id          String @id @default(uuid())
+  videoId     String @map("video_id")
+  profileName String @map("profile_name")
+  url         String
+  codec       String
+  bitrate     Int
+  width       Int
+  height      Int
+  fileSize    BigInt? @map("file_size")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  video       Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@map("renditions")
+}
+
+model Caption {
+  id        String  @id @default(uuid())
+  videoId   String  @map("video_id")
+  language  String
+  label     String?
+  format    String  @default("vtt")
+  url       String
+  isDefault Boolean @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  video     Video   @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@map("captions")
+}
+
+model Feed {
+  id          String  @id @default(uuid())
+  name        String
+  slug        String  @unique
+  description String? @db.Text
+  type        String  @default("mrss")
+  filterRules Json?   @map("filter_rules")
+  sortOrder   String  @default("newest") @map("sort_order")
+  itemLimit   Int     @default(50) @map("item_limit")
+  isActive    Boolean @default(true) @map("is_active")
+  cacheTtl    Int     @default(300) @map("cache_ttl")
+  customNamespaces Json? @map("custom_namespaces")
+  imageUrl    String? @map("image_url")
+  copyright   String?
+  language    String  @default("en")
+  apiKey      String? @map("api_key")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  items       FeedItem[]
+
+  @@map("feeds")
+}
+
+model FeedItem {
+  id        String   @id @default(uuid())
+  feedId    String   @map("feed_id")
+  videoId   String   @map("video_id")
+  position  Int      @default(0)
+  addedAt   DateTime @default(now()) @map("added_at")
+
+  feed      Feed     @relation(fields: [feedId], references: [id], onDelete: Cascade)
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([feedId, videoId])
+  @@map("feed_items")
+}
+
+model Category {
+  id        String  @id @default(uuid())
+  name      String
+  slug      String  @unique
+  parentId  String? @map("parent_id")
+  depth     Int     @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryTree")
+  videoCategories VideoCategory[]
+
+  @@map("categories")
+}
+
+model VideoCategory {
+  videoId    String @map("video_id")
+  categoryId String @map("category_id")
+
+  video      Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([videoId, categoryId])
+  @@map("video_categories")
+}
+
+model Tag {
+  id        String @id @default(uuid())
+  name      String @unique
+  slug      String @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  videoTags VideoTag[]
+
+  @@map("tags")
+}
+
+model VideoTag {
+  videoId String @map("video_id")
+  tagId   String @map("tag_id")
+
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([videoId, tagId])
+  @@map("video_tags")
+}
+
+model Playlist {
+  id        String @id @default(uuid())
+  name      String
+  slug      String @unique
+  description String? @db.Text
+  type      String @default("manual")
+  rules     Json?
+  isPublic  Boolean @default(false) @map("is_public")
+  createdById String @map("created_by_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  createdBy User  @relation(fields: [createdById], references: [id])
+  items     PlaylistItem[]
+
+  @@map("playlists")
+}
+
+model PlaylistItem {
+  id         String @id @default(uuid())
+  playlistId String @map("playlist_id")
+  videoId    String @map("video_id")
+  position   Int    @default(0)
+  addedAt    DateTime @default(now()) @map("added_at")
+
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  video      Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([playlistId, videoId])
+  @@map("playlist_items")
+}
+
+model TranscodingJob {
+  id          String   @id @default(uuid())
+  videoId     String   @map("video_id")
+  status      String   @default("pending")
+  profile     String
+  progress    Float    @default(0)
+  errorMsg    String?  @map("error_msg") @db.Text
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  video       Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@map("transcoding_jobs")
+}
+
+model Webhook {
+  id        String  @id @default(uuid())
+  url       String
+  events    Json
+  secret    String?
+  isActive  Boolean @default(true) @map("is_active")
+  lastTriggeredAt DateTime? @map("last_triggered_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("webhooks")
+}
+
+model AuditLog {
+  id           String @id @default(uuid())
+  userId       String? @map("user_id")
+  action       String
+  resourceType String @map("resource_type")
+  resourceId   String? @map("resource_id")
+  meta         Json?
+  ip           String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user         User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([resourceType, resourceId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedBy String?  @map("updated_by")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+model VideoAnalytics {
+  id        String   @id @default(uuid())
+  videoId   String   @map("video_id")
+  views     Int      @default(0)
+  uniqueViewers Int  @default(0) @map("unique_viewers")
+  watchTime Float    @default(0) @map("watch_time")
+  completionRate Float @default(0) @map("completion_rate")
+  date      DateTime @db.Date
+  country   String?
+  device    String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([videoId, date, country, device])
+  @@map("video_analytics")
+}

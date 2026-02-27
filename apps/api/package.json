@@ -1,0 +1,47 @@
+{
+  "name": "@streamvault/api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "start": "node dist/main.js",
+    "dev": "nest start --watch",
+    "lint": "echo ok"
+  },
+  "dependencies": {
+    "@nestjs/bullmq": "^11",
+    "@nestjs/common": "^11",
+    "@nestjs/config": "^4",
+    "@nestjs/core": "^11",
+    "@nestjs/jwt": "^11",
+    "@nestjs/passport": "^11",
+    "@nestjs/platform-express": "^11",
+    "@nestjs/swagger": "^11",
+    "@prisma/client": "^6",
+    "bcryptjs": "^2",
+    "bullmq": "^5",
+    "class-transformer": "^0.5",
+    "class-validator": "^0.14",
+    "dotenv": "^16",
+    "ioredis": "^5.9.3",
+    "multer": "^1",
+    "passport": "^0.7",
+    "passport-jwt": "^4",
+    "reflect-metadata": "^0.2",
+    "rxjs": "^7",
+    "slugify": "^1",
+    "xml2js": "^0.6"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11",
+    "@types/bcryptjs": "^2",
+    "@types/multer": "^1",
+    "@types/passport-jwt": "^4",
+    "@types/xml2js": "^0.4",
+    "prisma": "^6",
+    "typescript": "^5.7"
+  },
+  "prisma": {
+    "seed": "npx ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  }
+}
